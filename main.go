@@ -25,7 +25,7 @@ type config struct {
 	EmailTo       string `env:"EMAIL_TO" envDefault:"tech@connectapp.biz"`
 }
 
-//Email send , used only when load is high.
+//Email send
 func sendMessage(mg mailgun.Mailgun, sender, subject, body, recipient string) {
 	message := mg.NewMessage(sender, subject, body, recipient)
 	resp, id, err := mg.Send(message)
@@ -54,7 +54,8 @@ func main() {
 		usage()
 		panic("Cannot pass environment variables")
 	}
-	// Connect to a server
+
+	//Nats server configuraton here
 	options := nats.Options{
 		User:           cfg.NatUser,
 		Password:       cfg.NatPass,
@@ -66,35 +67,35 @@ func main() {
 		Timeout:        1 * time.Second,
 	}
 
+	//Mailgun to send notification emails
 	mg := mailgun.NewMailgun(cfg.MailgunDomain, cfg.MailgunKey, cfg.MailgunPublic)
 	conn, err := options.Connect()
-	if err != nil {
-		panic(err)
-	} else {
+	if err == nil {
+
+		//subscribe to average load events on server
 		conn.Subscribe("stats.loadaverage", func(m *nats.Msg) {
-			//fmt.Printf("%v+\n", time.Now())
 			msg := strings.Split(string(m.Data), " ")
 			host := msg[0]
 			p, _ := strconv.ParseFloat(msg[1], 64)
 			cpu, _ := strconv.ParseFloat(msg[2], 64)
-			load := p / cpu //strconv.ParseFloat(msg[1], 64) / strconv.ParseFloat(msg[2], 64)
+			load := p / cpu
 
 			if load > 0.60 {
 
 				subject := fmt.Sprintf(" Warning! Server is Overloaded: %s ", host)
 				body := fmt.Sprintf("Load average : %f", load)
 
-				sendMessage(mg, "postmaster@ci.connectapp.biz", subject, body, "hitesh.joshi@ziploan.in")
-
-				//fmt.Printf("%v Received a message :%s %f\n ", time.Now(), host, load)
+				sendMessage(mg, cfg.EmailFrom, subject, body, cfg.EmailTo)
 			}
 		})
+	} else {
+		log.Fatal("Cannot connect to Nats server %s", err)
 	}
 
 	defer conn.Close()
 
 	go forever()
-	select {} // block forever
+	select {} // block this shit forever!!
 }
 
 func forever() {
