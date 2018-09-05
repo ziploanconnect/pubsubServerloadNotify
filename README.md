@@ -28,3 +28,8 @@ Here is how to create the PUBLISH service for server load.
 - Make sure you have golang
 -  `go get github.com/ziploanconnect/pubsubServerloadNotify` and run `$HOME/go/bin/pubsubServerloadNotify` and it should work
 - I have created a natsnoty.service for ubuntu see if that works.
+
+## Testing 
+
+- Install stress to give system some stress testing`sudo apt-get install -y stress`
+- Run `stress --cpu $(getconf _NPROCESSORS_ONLN)` for fews to test. You should start receiving emails
