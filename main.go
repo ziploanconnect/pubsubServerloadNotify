@@ -39,7 +39,7 @@ func sendMessage(mg mailgun.Mailgun, sender, subject, body, recipient string) {
 
 }
 func usage() {
-	log.Fatalf("Environment varibles for NAT, MAILGUN and EMAIL not set \n NAT_USER\n NAT_PASS\n APP_NAME\n NAT_HOST\n MAINGUN_DOMANI\n MAILGUN_PRIVATE_KEY\n MAILGUN_PUBLIC_KEY\n EMAIL_FROM\n EMAIL_TO\n")
+	log.Fatalf("Environment varibles for NAT, MAILGUN and EMAIL not set \n NAT_USER\n NAT_PASS\n APP_NAME\n NAT_HOST\n MAILGUN_DOMANI\n MAILGUN_PRIVATE_KEY\n MAILGUN_PUBLIC_KEY\n EMAIL_FROM\n EMAIL_TO\n")
 }
 
 func main() {
